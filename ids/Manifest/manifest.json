@@ -1,0 +1,85 @@
+{
+  "EventContextMapping":
+  [
+    {
+      "FilterChain": "filter_chain_1",
+      "IdsmInstance": 1,
+      "Event": "BSW_1"
+    },
+    {
+      "FilterChain": "filter_chain_2",
+      "IdsmInstance": 1,
+      "Event": "BSW_2"
+    }
+  ],
+  "Events": 
+  [
+    {
+      "Specifier" : "BSW_1",
+      "Definition" : {
+                            "SymbolName" : "BSW1",
+                            "ID": 7
+                          },
+      "SensorInstanceID" : 5,
+      "ReportingMode" : "DETAILED",
+      "FilterChain" : "idsMFilterChain2",
+      "Severity" : 1,
+      "PersistentStorage" : false,
+      "ContextData" : "0xAA"
+    },
+    {
+      "Specifier" : "BSW_2",
+      "Definition" : {
+                            "SymbolName" : "BSW2",
+                            "ID": 2
+                          },
+      "SensorInstanceID" : 2,
+      "ReportingMode" : "OFF",
+      "FilterChain" : "idsMFilterChain1",
+      "Severity" : 0,
+      "PersistentStorage" : true,
+      "ContextData" : "0xBB"
+    }
+  ],
+  "FilterChains":
+  [
+    {
+      "Specifier": "filter_chain_1",
+      "Aggregation": "aggregation_filter_1",
+      "OneEveryN": "oneEveryN_filter_1",
+      "State": "state_filter_1",
+      "Threshold": "threshold_filter_1"      
+    },
+    {
+      "Specifier": "filter_chain_2",
+      "Aggregation": "null",
+      "OneEveryN": "oneEveryN_filter_1",
+      "State": "state_filter_1",
+      "Threshold": "null"
+    }
+  ],
+  "Filters": 
+  [
+    {
+      "Specifier": "threshold_filter_1",
+      "Kind": "Threshold",
+      "IntervalLength": 100,
+      "ThresholdNumber": 2
+    },
+    {
+      "Specifier": "state_filter_1",
+      "Kind": "State",
+      "blockIfStateActiveAp": ["State_A", "State_B", "State_C"]
+    },
+    {
+      "Specifier": "oneEveryN_filter_1",
+      "Kind": "OneEveryN",
+      "n" : 4
+    },
+    {
+      "Specifier": "aggregation_filter_1",
+      "Kind": "Aggregation",
+      "IntervalLength": 100
+    }
+  ]
+}
