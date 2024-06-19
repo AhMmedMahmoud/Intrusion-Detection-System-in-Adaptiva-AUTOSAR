@@ -16,7 +16,14 @@ namespace ara
             bool parseManifest() 
             {
                 // path from inside build to manifest.json
-                FILE* file = fopen("../Manifest/manifest.json", "r");
+                //FILE* file = fopen("../Manifest/manifest.json", "r");
+
+                std::string relativePath = 
+                std::string(__FILE__, std::strrchr(__FILE__, '/') + 1) + "manifest.json";
+              
+                // Open the file using the constructed relative path
+                FILE *file = fopen(relativePath.c_str(), "r");char buffer[65536];
+
                 if (file == nullptr)
                 {
                     std::cout << "manifest file doesnot exist" << std::endl;

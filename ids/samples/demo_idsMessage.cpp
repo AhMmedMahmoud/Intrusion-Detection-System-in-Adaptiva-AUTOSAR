@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../ids/ids_message.h"
+#include "../ids_protocol/ids_message.h"
 
 using namespace ara::idsm::ids;
 
@@ -8,7 +8,9 @@ using namespace ara::idsm::ids;
 #define EVENTFRAME_CONTEXTDATAFRAME 2
 #define EVENTFRAME_TIMESTAMP_CONTEXTDATAFRAME 3
 
-#define EXAMPLE EVENTFRAME_CONTEXTDATAFRAME
+#define EVENTFRAME_SIGNATURE 4
+
+#define EXAMPLE EVENTFRAME_SIGNATURE
 
 int main()
 {
@@ -117,6 +119,31 @@ int main()
     IDSMessage m4_rec =  IDSMessage::Deserialize(message4_vec);
     m4_rec.print();
 #endif
+
+#if EXAMPLE == EVENTFRAME_SIGNATURE
+    IDSMessage m2(
+                    EventFrame (10, ProtocolHeader(1,0,0), 4, 5, 6, 7 )
+                 );
+
+
+    std::cout << "-------------print message-------------\n";    
+    m2.print();
+
+    std::cout << "--check if message is verified or not--\n";
+    std::cout << static_cast<int>(m2.isVerified()) << "\n";
+
+    std::cout << "-------------serialization-------------\n";
+    std::vector<uint8_t> message2_vec = m2.Payload();
+    for(uint8_t byte : message2_vec)
+    {
+        std::cout << static_cast<int>(byte) << "\n";
+    }
+
+    std::cout << "-----------deserialization------------\n";    
+    IDSMessage m2_rec =  IDSMessage::Deserialize(message2_vec);
+    m2_rec.print();
+#endif
+
 
     return 0;
 }

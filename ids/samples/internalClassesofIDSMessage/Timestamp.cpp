@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ids/timestamp/timestamp.h"
+#include "../../ids_protocol/timestamp/timestamp.h"
 
 using namespace ara::idsm::ids;
 

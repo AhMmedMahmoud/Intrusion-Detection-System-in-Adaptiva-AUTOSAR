@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ids/signature/signature.h"
+#include "../../ids_protocol/signature/signature.h"
 
 using namespace ara::idsm::ids;
 
@@ -24,6 +24,6 @@ int main()
     std::cout << "---------------\n";
     s2.print();
     std::cout << "---------------\n";
-
+    
     return 0;
 }

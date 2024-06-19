@@ -1,11 +1,7 @@
 #include "idsm.h"
 #include <iostream>
 #include <algorithm>
-#include "../ids/ids_message.h"
-
-//#include "../Manifest/manifestOperations.h"
-//#include "../Manifest/sharedEventsInterface.h"
-
+#include "../ids_protocol/ids_message.h"
 #include "../Manifest/manager/manifest_manager.h"
 #include "../Manifest/shared/shared_eventContextMappings.h"
 
@@ -19,7 +15,6 @@ namespace ara
             const uint16_t cMethodReportEventTimestampTypeCountType = 2;
             const uint16_t cMethodReportEventContextDataTypeCountType = 3;
             const uint16_t cMethodReportEventContextDataTypeTimestampTypeCountType = 4;
-
             const std::string IDSM::cAnyIpAddress("0.0.0.0");
 
             /******************************* constructors  ******************************/
@@ -75,6 +70,12 @@ namespace ara
 
                 manifest::ManifestManager manager("../Manifest/manifest.json");
                 manager.parseJSON();
+                
+                for(manifest::SecurityEventContextMapping obj : manifest::eventContextMappings)
+                {
+                    myMap[obj.getMappedSecurityEvent().getSecurityEventDefinition().getId()] = 
+                        obj.getFilterChain().getOneEveryN().getN();
+                }
             }
 
             bool IDSM::isValidMessage(const ara::com::someip::rpc::SomeIpRpcMessage &request)
@@ -103,68 +104,173 @@ namespace ara
 
             void IDSM::logic(const ara::com::someip::rpc::SomeIpRpcMessage &request)
             {
+                ///// get method id that crossponds to received message /////
                 uint16_t _methodID = request.MessageId();
+
+                ///// read current state machine /////
+                std::string _currentStateMachine = "State_1";
+
+/**********************************************************
+* received message  : void ReportEvent( CountType count)  *
+**********************************************************/
                 if(_methodID == cMethodReportEventCountType)
                 {
                     std::cout << "-----------------\n";
-                    std::cout << "void ReportEvent (const CountType count=1) \n";
-                    
+                    std::cout << "void ReportEvent (const CountType count=1) \n";  
                     std::vector<uint8_t> payload = request.RpcPayload();
                     int _index = manifest::ManifestManager::find(std::string(payload.begin()+1,payload.end()-1));
-                    if(_index != -1 && manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum() != manifest::SecurityEventReportingModeEnum::OFF)
-                    {
-                        uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
-                        uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
-                        uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
-                        uint8_t _count = payload[payload[0]+1];
+                    if(_index == -1) return;
+
+                    uint8_t _sensorInstanceId;
+                    uint16_t _eventDefinationID;
+                    uint16_t _idsMInstanceID;
+                    uint8_t _count;
                     
-                        ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                                    ids::ProtocolHeader(0,0,0),
-                                                                    _idsMInstanceID,
-                                                                    _sensorInstanceId,
-                                                                    _eventDefinationID,
-                                                                    _count
-                                                                 )
-                                                );
-                        std::cout << "-------IDS message-------\n";
-                        _message.print();
-                        mSendingQueue.TryEnqueue(std::move(_message.Payload()));       
+                    _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
+                    _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
+                    _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
+                    _count = payload[payload[0]+1];
+
+                    ///////////////////////////
+                    // Reporting Mode filter //
+                    ///////////////////////////            
+                    switch(getReportingMode(_index))
+                    {
+                        case manifest::SecurityEventReportingModeEnum::BRIEF_BYPASSING_FILTERS:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED_BYPASSING_FILTERS:
+                            NoFilters( _idsMInstanceID,
+                                       _sensorInstanceId,
+                                       _eventDefinationID,
+                                       _count
+                                     );    
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::BRIEF:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED:   
+                            if(stateMachineFilterExists(_index))
+                            {
+                                std::cout << "stateFilter exists\n";
+                                if(isCurrentMachineStateOneOfBlockingState(_index,_currentStateMachine))
+                                {
+                                    std::cout << "\tone of blocking states\n";
+                                    return;
+                                }
+                                std::cout << "\tnot one of blocking states\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count
+                                               );
+                            }
+                            else
+                            {       
+                                std::cout << "stateFilter not exists\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count
+                                               );
+                            }
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::OFF: 
+                            return;
+                        break;
                     }
                 }
+/************************************************************************
+* received message  : void ReportEvent( TimestampType timestamp,        *
+*                                       CountType count                 *
+*                                     )                                 *
+************************************************************************/
                 else if(_methodID == cMethodReportEventTimestampTypeCountType)
                 {
-                    std::cout << "-----------------\n";
-                    std::cout << "void ReportEvent (const TimestampType timestamp,\n";
-                    std::cout << "                  const CountType count=1)\n";
-                    
                     std::vector<uint8_t> payload = request.RpcPayload();
                     int _index = manifest::ManifestManager::find(std::string(payload.begin()+1,payload.begin()+1+payload[0]));
-                    if(_index != -1 && manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum() != manifest::SecurityEventReportingModeEnum::OFF)
+                    if(_index == -1) return;
+
+                    uint8_t _sensorInstanceId;
+                    uint16_t _eventDefinationID;
+                    uint16_t _idsMInstanceID;
+                    size_t _offset;
+                    uint32_t _nanoseconds;
+                    uint32_t _seconds;
+                    uint8_t _count;
+
+                    _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
+                    _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
+                    _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
+                    _offset = payload[0]+1;
+                    _nanoseconds = ara::com::helper::ExtractInteger(payload, _offset);
+                    _seconds = ara::com::helper::ExtractInteger(payload, _offset);
+                    _count = payload[_offset];
+
+                    ///////////////////////////
+                    // Reporting Mode filter //
+                    ///////////////////////////            
+                    switch(getReportingMode(_index))
                     {
-                        uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
-                        uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
-                        uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
-                        size_t _offset = payload[0]+1;
-                        uint32_t _nanoseconds = ara::com::helper::ExtractInteger(payload, _offset);
-                        uint32_t _seconds = ara::com::helper::ExtractInteger(payload, _offset);
-                        uint8_t _count = payload[_offset];
-                    
-                        ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                                    ids::ProtocolHeader(0,1,0),
-                                                                    _idsMInstanceID,
-                                                                    _sensorInstanceId,
-                                                                    _eventDefinationID,
-                                                                    _count
-                                                                    ),
-                                                    ids::Timestamp( ids::TimeStampSource::AUTOSAR,
-                                                                    _nanoseconds,
-                                                                    _seconds)
-                                                );
-                        std::cout << "-------IDS message-------\n";
-                        _message.print();
-                        mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
+                        case manifest::SecurityEventReportingModeEnum::BRIEF_BYPASSING_FILTERS:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED_BYPASSING_FILTERS:
+                            NoFilters( _idsMInstanceID,
+                                       _sensorInstanceId,
+                                       _eventDefinationID,
+                                       _count,
+                                       _nanoseconds,
+                                       _seconds
+                                     );    
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::BRIEF:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED:   
+                            if(stateMachineFilterExists(_index))
+                            {
+                                std::cout << "stateFilter exists\n";
+                                if(isCurrentMachineStateOneOfBlockingState(_index,_currentStateMachine))
+                                {
+                                    std::cout << "\tone of blocking states\n";
+                                    return;
+                                }
+                                std::cout << "\tnot one of blocking states\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count,
+                                                 _nanoseconds,
+                                                 _seconds
+                                               );
+                            }
+                            else
+                            {       
+                                std::cout << "stateFilter not exists\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count,
+                                                 _nanoseconds,
+                                                 _seconds
+                                               );
+                            }
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::OFF: 
+                            return;
+                        break;
                     }
                 }
+/************************************************************************
+* received message  : void ReportEvent( ContextDataType contextData     *
+*                                       CountType count                 *
+*                                     )                                 *
+************************************************************************/
                 else if(_methodID == cMethodReportEventContextDataTypeCountType)
                 {
                     std::cout << "-----------------\n";
@@ -173,52 +279,75 @@ namespace ara
                     
                     std::vector<uint8_t> payload = request.RpcPayload();
                     int _index = manifest::ManifestManager::find(std::string(payload.begin()+1,payload.begin()+1+payload[0]));
-                    if(_index != -1 && manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum() != manifest::SecurityEventReportingModeEnum::OFF)
-                    {
-                        uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
-                        uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
-                        uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
-                        uint8_t _count = *(payload.rbegin());
+                    if(_index == -1)
+                        return ;
 
-                        manifest::SecurityEventReportingModeEnum _reportingMode = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum(); 
-                        if(_reportingMode == manifest::SecurityEventReportingModeEnum::DETAILED)
-                        {
-                            std::vector<uint8_t> _dataContext = std::vector<uint8_t>(payload.begin()+1+payload[0],payload.end()-1);
-                            
-                            ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                                        ids::ProtocolHeader(0,0,1),
-                                                                        _idsMInstanceID,
-                                                                        _sensorInstanceId,
-                                                                        _eventDefinationID,
-                                                                        _count
-                                                                     ),
-                                                        ids:: ContextDataFrame( (_dataContext.size() <= 127) ? ids::ContextDataSize::SHORT : ids::ContextDataSize::LONG,
-                                                                                _dataContext.size(),
-                                                                                _dataContext
-                                                                            )
-                                                    );
-                            
-                            std::cout << "-------IDS message-------\n";
-                            _message.print();
-                            mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
-                        }
-                        else if(_reportingMode == manifest::SecurityEventReportingModeEnum::BRIEF)
-                        {
-                            ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                                       ids::ProtocolHeader(0,0,0),
-                                                                       _idsMInstanceID,
-                                                                       _sensorInstanceId,
-                                                                       _eventDefinationID,
-                                                                       _count
-                                                                     )
-                                                    );
-                            
-                            std::cout << "-------IDS message-------\n";
-                            _message.print();
-                            mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
-                        }
+                    uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
+                    uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
+                    uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
+                    uint8_t _count = *(payload.rbegin());
+                    std::vector<uint8_t> _dataContext = std::vector<uint8_t>(payload.begin()+1+payload[0],payload.end()-1);
+
+                    ///////////////////////////
+                    // Reporting Mode filter //
+                    ///////////////////////////            
+                    switch(getReportingMode(_index))
+                    {
+                        case manifest::SecurityEventReportingModeEnum::BRIEF_BYPASSING_FILTERS:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED_BYPASSING_FILTERS:
+                            NoFilters( _idsMInstanceID,
+                                       _sensorInstanceId,
+                                       _eventDefinationID,
+                                       _count,
+                                       _dataContext
+                                     );    
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::BRIEF:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED:   
+                            if(stateMachineFilterExists(_index))
+                            {
+                                std::cout << "stateFilter exists\n";
+                                if(isCurrentMachineStateOneOfBlockingState(_index,_currentStateMachine))
+                                {
+                                    std::cout << "\tone of blocking states\n";
+                                    return;
+                                }
+                                std::cout << "\tnot one of blocking states\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count,
+                                                 _dataContext
+                                               );
+                            }
+                            else
+                            {       
+                                std::cout << "stateFilter not exists\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count,
+                                                 _dataContext
+                                               );
+                            }
+                        break;
+
+                        case manifest::SecurityEventReportingModeEnum::OFF: 
+                            return;
+                        break;
                     }
                 }
+/************************************************************************
+* received message  : void ReportEvent( ContextDataType contextData     *
+*                                       TimestampType timestamp,        *
+*                                       CountType count                 *
+*                                     )                                 *
+************************************************************************/
                 else if(_methodID == cMethodReportEventContextDataTypeTimestampTypeCountType)
                 {
                     std::cout << "-----------------\n";
@@ -228,41 +357,73 @@ namespace ara
 
                     std::vector<uint8_t> payload = request.RpcPayload();
                     int _index = manifest::ManifestManager::find(std::string(payload.begin()+1,payload.begin()+1+payload[0]));
-                    if(_index != -1 && manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum() != manifest::SecurityEventReportingModeEnum::OFF)
+                    if(_index == -1)
+                        return;
+
+                    uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
+                    uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
+                    uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
+
+                    size_t _offset = payload[0]+1;
+                    uint32_t _nanoseconds = ara::com::helper::ExtractInteger(payload, _offset);
+                    uint32_t _seconds = ara::com::helper::ExtractInteger(payload, _offset);
+                    std::vector<uint8_t> _dataContext = std::vector<uint8_t>(payload.begin()+_offset, payload.end()-1);
+                    uint8_t _count = *(payload.rbegin());
+
+                    ///////////////////////////
+                    // Reporting Mode filter //
+                    ///////////////////////////            
+                    switch(getReportingMode(_index))
                     {
-                        uint8_t _sensorInstanceId = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSensorInstanceId();
-                        uint16_t _eventDefinationID = manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventDefinition().getId();
-                        uint16_t _idsMInstanceID = manifest::eventContextMappings[_index].getIdsmInstance();
+                        case manifest::SecurityEventReportingModeEnum::BRIEF_BYPASSING_FILTERS:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED_BYPASSING_FILTERS:
+                            NoFilters( _idsMInstanceID,
+                                       _sensorInstanceId,
+                                       _eventDefinationID,
+                                       _count
+                                     );    
+                        break;
 
-                        size_t _offset = payload[0]+1;
-                        uint32_t _nanoseconds = ara::com::helper::ExtractInteger(payload, _offset);
-                        uint32_t _seconds = ara::com::helper::ExtractInteger(payload, _offset);
+                        case manifest::SecurityEventReportingModeEnum::BRIEF:
+                        case manifest::SecurityEventReportingModeEnum::DETAILED:   
+                            if(stateMachineFilterExists(_index))
+                            {
+                                std::cout << "stateFilter exists\n";
+                                if(isCurrentMachineStateOneOfBlockingState(_index,_currentStateMachine))
+                                {
+                                    std::cout << "\tone of blocking states\n";
+                                    return;
+                                }
+                                std::cout << "\tnot one of blocking states\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count,
+                                                 _nanoseconds,
+                                                 _seconds,
+                                                 _dataContext
+                                               );
+                            }
+                            else
+                            {       
+                                std::cout << "stateFilter not exists\n";
+                                
+                                oneEveryNFilter( _index,
+                                                 _idsMInstanceID,
+                                                 _sensorInstanceId,
+                                                 _eventDefinationID,
+                                                 _count
+                                               );
+                            }
+                        break;
 
-                        std::vector<uint8_t> _dataContext = std::vector<uint8_t>(payload.begin()+_offset, payload.end()-1);
-                        
-                        uint8_t _count = *(payload.rbegin());
-
-                        ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                                    ids::ProtocolHeader(0,1,1),
-                                                                    _idsMInstanceID,
-                                                                    _sensorInstanceId,
-                                                                    _eventDefinationID,
-                                                                    _count
-                                                                    ),
-                                                    ids::Timestamp( ids::TimeStampSource::AUTOSAR,
-                                                                    _nanoseconds,
-                                                                    _seconds
-                                                                ),
-                                                    ids:: ContextDataFrame( (_dataContext.size() <= 127) ? ids::ContextDataSize::SHORT : ids::ContextDataSize::LONG,
-                                                                            _dataContext.size(),
-                                                                            _dataContext
-                                                                        )
-                                                );
-                        std::cout << "-------IDS message-------\n";
-                        _message.print();
-                        mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
-                    }    
-                } 
+                        case manifest::SecurityEventReportingModeEnum::OFF: 
+                            return;
+                        break;
+                    }
+                }
             }
 
             void IDSM::InvokeEventHandler(const ara::com::someip::rpc::SomeIpRpcMessage &request)
@@ -271,11 +432,302 @@ namespace ara
                 if(isValidMessage(request))
                 {
                     logic(request);
+                }              
+            }
+
+            bool IDSM::stateMachineFilterExists(int _index)
+            {
+                return manifest::eventContextMappings[_index].getFilterChain().getState().getSpecifier() != "null";
+            } 
+
+            bool IDSM::oneEveryNFilterExists(int _index)
+            {
+                return manifest::eventContextMappings[_index].getFilterChain().getOneEveryN().getSpecifier() != "null";
+            }
+
+            bool IDSM::isCurrentMachineStateOneOfBlockingState(int _index, std::string _currentStateMachine)
+            {
+                std::vector<std::string> _blockingStates;
+                _blockingStates = manifest::eventContextMappings[_index].getFilterChain().getState().getBlockIfStateActiveAp();
+                auto it = std::find( _blockingStates.begin(), _blockingStates.end(), _currentStateMachine);
+                return (!(it == _blockingStates.end())); 
+            }
+
+            manifest::SecurityEventReportingModeEnum IDSM::getReportingMode(int _index)
+            {
+                return manifest::eventContextMappings[_index].getMappedSecurityEvent().getSecurityEventReportingModeEnum();
+            }
+
+            int IDSM::getN(int _index)
+            {
+                return manifest::eventContextMappings[_index].getFilterChain().getOneEveryN().getN();
+            }
+
+            void IDSM::NoFilters( uint16_t _idsMInstanceID,
+                                uint8_t _sensorInstanceId,
+                                uint16_t _eventDefinationID,
+                                uint16_t _count,
+                                uint32_t _nanoseconds,
+                                uint32_t _seconds,
+                                const std::vector<uint8_t> &_dataContext
+                              )
+            {
+                ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
+                                                           ids::ProtocolHeader(0,1,1),
+                                                           _idsMInstanceID,
+                                                           _sensorInstanceId,
+                                                           _eventDefinationID,
+                                                           _count
+                                                         ),
+                                          ids::Timestamp( ids::TimeStampSource::AUTOSAR,
+                                                          _nanoseconds,
+                                                          _seconds
+                                                        ),
+                                          ids:: ContextDataFrame( (_dataContext.size() <= 127) ? ids::ContextDataSize::SHORT : ids::ContextDataSize::LONG,
+                                                                  _dataContext.size(),
+                                                                  _dataContext
+                                                                )
+                                                );
+                std::cout << "-------IDS message-------\n";
+                _message.print();
+                mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
+            }
+
+            void IDSM::NoFilters( uint16_t _idsMInstanceID,
+                                  uint8_t _sensorInstanceId,
+                                  uint16_t _eventDefinationID,
+                                  uint16_t _count,
+                                  const std::vector<uint8_t> &_dataContext
+                                )
+            {
+                ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
+                                            ids::ProtocolHeader(0,0,1),
+                                            _idsMInstanceID,
+                                            _sensorInstanceId,
+                                            _eventDefinationID,
+                                            _count
+                                            ),
+                                          ids:: ContextDataFrame( (_dataContext.size() <= 127) ? ids::ContextDataSize::SHORT : ids::ContextDataSize::LONG,
+                                                                  _dataContext.size(),
+                                                                  _dataContext
+                                                                )
+                                        );
+                
+                std::cout << "-------IDS message-------\n";
+                _message.print();
+                mSendingQueue.TryEnqueue(std::move(_message.Payload())); 
+            }
+
+            void IDSM::NoFilters( uint16_t _idsMInstanceID,
+                                  uint8_t _sensorInstanceId,
+                                  uint16_t _eventDefinationID,
+                                  uint16_t _count,
+                                  uint32_t _nanoseconds,
+                                  uint32_t _seconds
+                                )
+            {
+                ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
+                                                           ids::ProtocolHeader(0,1,0),
+                                                           _idsMInstanceID,
+                                                           _sensorInstanceId,
+                                                           _eventDefinationID,
+                                                           _count
+                                                         ),
+                                          ids::Timestamp( ids::TimeStampSource::AUTOSAR,
+                                                          _nanoseconds,
+                                                          _seconds
+                                                        )
+                                        );
+                std::cout << "-------IDS message-------\n";
+                _message.print();
+                mSendingQueue.TryEnqueue(std::move(_message.Payload()));
+            }
+
+            void IDSM::NoFilters( uint16_t _idsMInstanceID,
+                                  uint8_t _sensorInstanceId,
+                                  uint16_t _eventDefinationID,
+                                  uint16_t _count
+                                )
+            {
+                ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
+                                                            ids::ProtocolHeader(0,0,0),
+                                                            _idsMInstanceID,
+                                                            _sensorInstanceId,
+                                                            _eventDefinationID,
+                                                            _count
+                                                         )
+                                        );
+                std::cout << "-------IDS message-------\n";
+                _message.print();
+                mSendingQueue.TryEnqueue(std::move(_message.Payload()));
+            }
+
+            void IDSM::oneEveryNFilter( int _index,
+                                        uint16_t _idsMInstanceID,
+                                        uint8_t _sensorInstanceId,
+                                        uint16_t _eventDefinationID,
+                                        uint16_t _count,
+                                        uint32_t _nanoseconds,
+                                        uint32_t _seconds,
+                                        const std::vector<uint8_t> &_dataContext
+                                      )
+            {
+                if(oneEveryNFilterExists(_index))
+                {
+                    std::cout << "oneEveryNFilterExists\n";
+                
+                    if( myMap[_eventDefinationID] == getN(_index))
+                    {
+                        std::cout << "\tnow\n";
+                        NoFilters( _idsMInstanceID,
+                                   _sensorInstanceId,
+                                   _eventDefinationID,
+                                   _count,
+                                   _nanoseconds,
+                                   _seconds,
+                                   _dataContext
+                                  );
+                        myMap[_eventDefinationID] = 1;
+                    }
+                    else
+                    {
+                        std::cout << "\tnot now\n";
+                        myMap[_eventDefinationID] = myMap[_eventDefinationID]+1;  
+                    }
                 }
                 else
                 {
-                    // ignore
-                }                
+                    NoFilters( _idsMInstanceID,
+                               _sensorInstanceId,
+                               _eventDefinationID,
+                               _count,
+                               _nanoseconds,
+                               _seconds,
+                               _dataContext
+                             );
+                }
+            }
+
+            void IDSM::oneEveryNFilter( int _index,
+                                        uint16_t _idsMInstanceID,
+                                        uint8_t _sensorInstanceId,
+                                        uint16_t _eventDefinationID,
+                                        uint16_t _count,
+                                        const std::vector<uint8_t> &_dataContext
+                                      )
+            {
+                if(oneEveryNFilterExists(_index))
+                {
+                    std::cout << "oneEveryNFilterExists\n";
+                
+                    if( myMap[_eventDefinationID] == getN(_index))
+                    {
+                        std::cout << "\tnow\n";
+                        NoFilters( _idsMInstanceID,
+                                   _sensorInstanceId,
+                                   _eventDefinationID,
+                                   _count,
+                                   _dataContext
+                                 );           
+                        myMap[_eventDefinationID] = 1;
+                    }
+                    else
+                    {
+                        std::cout << "\tnot now\n";
+                        myMap[_eventDefinationID] = myMap[_eventDefinationID]+1;  
+                    }
+                }
+                else
+                {
+                    NoFilters( _idsMInstanceID,
+                               _sensorInstanceId,
+                               _eventDefinationID,
+                               _count,
+                               _dataContext
+                             ); 
+                }
+            }
+
+            void IDSM::oneEveryNFilter( int _index,
+                                        uint16_t _idsMInstanceID,
+                                        uint8_t _sensorInstanceId,
+                                        uint16_t _eventDefinationID,
+                                        uint16_t _count,
+                                        uint32_t _nanoseconds,
+                                        uint32_t _seconds 
+                                      )
+            {
+                if(oneEveryNFilterExists(_index))
+                {
+                    std::cout << "oneEveryNFilterExists\n";
+        
+                    if( myMap[_eventDefinationID] == getN(_index))
+                    {
+                        std::cout << "\tnow\n";
+                        NoFilters( _idsMInstanceID,
+                                   _sensorInstanceId,
+                                   _eventDefinationID,
+                                   _count,
+                                   _nanoseconds,
+                                   _seconds
+                                 );
+                        myMap[_eventDefinationID] = 1;
+                    }
+                    else
+                    {
+                        std::cout << "\tnot now\n";
+                        myMap[_eventDefinationID] = myMap[_eventDefinationID]+1;  
+                    }
+                }
+                else
+                {
+                    std::cout << "oneEveryNFilter not exist Exist\n";
+                    NoFilters( _idsMInstanceID,
+                               _sensorInstanceId,
+                               _eventDefinationID,
+                               _count,
+                               _nanoseconds,
+                               _seconds
+                             );
+                }
+            }
+
+            void IDSM::oneEveryNFilter( int _index,
+                                        uint16_t _idsMInstanceID,
+                                        uint8_t _sensorInstanceId,
+                                        uint16_t _eventDefinationID,
+                                        uint16_t _count 
+                                      )
+            {
+                if(oneEveryNFilterExists(_index))
+                {
+                    std::cout << "oneEveryNFilterExists\n";
+                
+                    if( myMap[_eventDefinationID] == getN(_index))
+                    {
+                        std::cout << "\tnow\n";
+                        NoFilters( _idsMInstanceID,
+                                   _sensorInstanceId,
+                                   _eventDefinationID,
+                                   _count
+                                 ); 
+                        myMap[_eventDefinationID] = 1;
+                    }
+                    else
+                    {
+                        std::cout << "\tnot now\n";
+                        myMap[_eventDefinationID] = myMap[_eventDefinationID]+1;  
+                    }
+                }
+                else
+                {
+                    std::cout << "oneEveryNFilter not exist Exist\n";
+                    NoFilters( _idsMInstanceID,
+                                _sensorInstanceId,
+                                _eventDefinationID,
+                                _count
+                             ); 
+                }
             }
 
             /**************************** poller functions  **********************************/

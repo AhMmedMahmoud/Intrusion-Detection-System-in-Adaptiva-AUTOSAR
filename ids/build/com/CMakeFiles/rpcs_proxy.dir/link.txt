@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/rpcs_proxy.dir/samples/sm_interfaces_demos/demo_sm_rpcs_proxy.cpp.o -o rpcs_proxy  libaraCom.a 

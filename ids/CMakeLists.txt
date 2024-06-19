@@ -7,32 +7,36 @@ add_subdirectory(../crypto ${CMAKE_BINARY_DIR}/crypto)
 
 add_library(
    ids
-   ##### idsm functional #######
+   
+   ######## ids_protocol #######
+   ids_protocol/ids_message.h
+   ids_protocol/ids_message.cpp
+   ### event_frame ###
+   ids_protocol/event_frame/event_frame.h
+   ids_protocol/event_frame/event_frame.cpp
+   ids_protocol/event_frame/protocol_header.h
+   ids_protocol/event_frame/protocol_header.cpp
+   ### timestamp ###
+   ids_protocol/timestamp/timestamp.h
+   ids_protocol/timestamp/timestamp.cpp
+   ### context_data ###
+   ids_protocol/context_data/context_data.h
+   ids_protocol/context_data/context_data.cpp
+   ### signature ###
+   ids_protocol/signature/signer.h
+   ids_protocol/signature/verifier.h
+   ids_protocol/signature/signature.h
+   ids_protocol/signature/signature.cpp
+   
+   ##### security sensor #######
    event_reporter.h
    event_reporter.cpp
    common.h
-
-   ############ ids ############
-   ids/ids_message.h
-   ids/ids_message.cpp
-   ### event_frame ###
-   ids/event_frame/event_frame.h
-   ids/event_frame/event_frame.cpp
-   ids/event_frame/protocol_header.h
-   ids/event_frame/protocol_header.cpp
-   ### timestamp ###
-   ids/timestamp/timestamp.h
-   ids/timestamp/timestamp.cpp
-   ### context_data ###
-   ids/context_data/context_data.h
-   ids/context_data/context_data.cpp
-   ### signature ###
-   ids/signature/signature.h
-   ids/signature/signature.cpp
-
+   
    ############# idsm ##########
    idsm/idsm.h
    idsm/idsm.cpp
+
    ############# idsr ##########
    idsr/idsr.h
    idsr/idsr.cpp

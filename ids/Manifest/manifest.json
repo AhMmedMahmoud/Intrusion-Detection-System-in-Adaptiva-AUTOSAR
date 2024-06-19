@@ -22,7 +22,7 @@
                           },
       "SensorInstanceID" : 5,
       "ReportingMode" : "DETAILED",
-      "FilterChain" : "idsMFilterChain2",
+      "FilterChain" : "idsMFilterChain1",
       "Severity" : 1,
       "PersistentStorage" : false,
       "ContextData" : "0xAA"
@@ -35,7 +35,7 @@
                           },
       "SensorInstanceID" : 2,
       "ReportingMode" : "OFF",
-      "FilterChain" : "idsMFilterChain1",
+      "FilterChain" : "idsMFilterChain2",
       "Severity" : 0,
       "PersistentStorage" : true,
       "ContextData" : "0xBB"
@@ -44,14 +44,14 @@
   "FilterChains":
   [
     {
-      "Specifier": "filter_chain_1",
+      "Specifier": "filter_chain_2",
       "Aggregation": "aggregation_filter_1",
       "OneEveryN": "oneEveryN_filter_1",
       "State": "state_filter_1",
       "Threshold": "threshold_filter_1"      
     },
     {
-      "Specifier": "filter_chain_2",
+      "Specifier": "filter_chain_1",
       "Aggregation": "null",
       "OneEveryN": "oneEveryN_filter_1",
       "State": "state_filter_1",
@@ -74,7 +74,7 @@
     {
       "Specifier": "oneEveryN_filter_1",
       "Kind": "OneEveryN",
-      "n" : 4
+      "n" : 2
     },
     {
       "Specifier": "aggregation_filter_1",

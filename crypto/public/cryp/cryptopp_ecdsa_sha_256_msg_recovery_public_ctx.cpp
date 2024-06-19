@@ -73,7 +73,7 @@ namespace ara
                         bool result = verifier.VerifyMessage( (const CryptoPP::byte*)&message[0], message.size(), (const CryptoPP::byte*)&signature[0], signature.size() );
                         if(result)
                         {
-                            std::cout << "verfied\n";
+                            //std::cout << "verfied\n";
                             return ara::core::Result<ara::core::Vector<ara::core::Byte>>(message);
                         }
                         else

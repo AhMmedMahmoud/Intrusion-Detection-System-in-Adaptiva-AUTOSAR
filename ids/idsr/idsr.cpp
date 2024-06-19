@@ -1,7 +1,6 @@
 #include "idsr.h"
 #include <iostream>
 #include <algorithm>
-#include "../ids/ids_message.h"
 
 namespace ara
 {

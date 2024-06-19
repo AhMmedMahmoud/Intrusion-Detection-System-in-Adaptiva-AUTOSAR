@@ -5,7 +5,7 @@
 #include "../../com/network_binding/sockets/include/udp_client.h"
 #include "../../com/helper/concurrent_queue.h"
 #include "../../com/network_binding/someip/someipRpcMsg/someip_rpc_message.h"
-#include "../ids/ids_message.h"
+#include "../ids_protocol/ids_message.h"
 #include <functional>
 #include <stdint.h>
 #include <vector>

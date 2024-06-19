@@ -8,6 +8,7 @@
 #include <functional>
 #include <stdint.h>
 #include <vector>
+#include "../Manifest/metadata/manifest_types.h"
 
 
 namespace ara
@@ -39,7 +40,9 @@ namespace ara
                 const uint8_t mProtocolVersion;
                 const uint8_t mInterfaceVersion;                    
                 uint16_t cInitialSessionId{1};
-                
+                                
+                std::map<uint16_t, int> myMap;
+
                 /********************** poller functions  *********************/
                 void onReceive();
                 void onSend();
@@ -48,7 +51,77 @@ namespace ara
                 bool isValidMessage(const ara::com::someip::rpc::SomeIpRpcMessage &request);                
                 void InvokeEventHandler(const ara::com::someip::rpc::SomeIpRpcMessage &request);
                 void logic(const ara::com::someip::rpc::SomeIpRpcMessage &request);
+                
+                bool stateMachineFilterExists(int _index);
+                bool oneEveryNFilterExists(int _index);
+                bool isCurrentMachineStateOneOfBlockingState(int _index, std::string _currentStateMachine);
+                
+                manifest::SecurityEventReportingModeEnum getReportingMode(int _index);
+                int getN(int _index);
 
+                void NoFilters( uint16_t _idsMInstanceID,
+                                uint8_t _sensorInstanceId,
+                                uint16_t _eventDefinationID,
+                                uint16_t _count,
+                                uint32_t _nanoseconds,
+                                uint32_t _seconds,
+                                const std::vector<uint8_t> &_dataContext
+                              );
+
+                void NoFilters( uint16_t _idsMInstanceID,
+                                uint8_t _sensorInstanceId,
+                                uint16_t _eventDefinationID,
+                                uint16_t _count,
+                                const std::vector<uint8_t> &_dataContext
+                              );
+
+                void NoFilters( uint16_t _idsMInstanceID,
+                                uint8_t _sensorInstanceId,
+                                uint16_t _eventDefinationID,
+                                uint16_t _count,
+                                uint32_t _nanoseconds,
+                                uint32_t _seconds
+                              );
+
+                void NoFilters( uint16_t _idsMInstanceID,
+                                uint8_t _sensorInstanceId,
+                                uint16_t _eventDefinationID,
+                                uint16_t _count
+                              );
+
+                void oneEveryNFilter( int _index,
+                                      uint16_t _idsMInstanceID,
+                                      uint8_t _sensorInstanceId,
+                                      uint16_t _eventDefinationID,
+                                      uint16_t _count,
+                                      uint32_t _nanoseconds,
+                                      uint32_t _seconds,
+                                      const std::vector<uint8_t> &_dataContext
+                                    );
+
+                void oneEveryNFilter( int _index,
+                                      uint16_t _idsMInstanceID,
+                                      uint8_t _sensorInstanceId,
+                                      uint16_t _eventDefinationID,
+                                      uint16_t _count,
+                                      const std::vector<uint8_t> &_dataContext
+                                    );
+                           
+                void oneEveryNFilter( int _index,
+                                      uint16_t _idsMInstanceID,
+                                      uint8_t _sensorInstanceId,
+                                      uint16_t _eventDefinationID,
+                                      uint16_t _count,
+                                      uint32_t _nanoseconds,
+                                      uint32_t _seconds 
+                                    );
+                
+                void oneEveryNFilter( int _index,
+                                      uint16_t _idsMInstanceID,
+                                      uint8_t _sensorInstanceId,
+                                      uint16_t _eventDefinationID,
+                                      uint16_t _count 
+                                    );
             public:
                 /******************* constructor  *******************************/
                 /// @brief Constructor
@@ -57,18 +130,18 @@ namespace ara
                 /// @param multicastGroup Multicast group IPv4 address
                 /// @param port Multicast UDP port number
                 /// @throws std::runtime_error Throws when the UDP socket configuration failed
-                IDSM(
-                    uint16_t serviceId,
-                    uint16_t instanceId,
-                    uint8_t majorVersion,
-                    uint16_t eventgroupId, 
-                    AsyncBsdSocketLib::Poller *poller,
-                    std::string nicIpAddress,
-                    std::string multicastGroup,
-                    uint16_t port_Snesors_IDSM,
-                    uint16_t port_IDSM_IDSR,
-                    uint8_t protocolVersion,
-                    uint8_t interfaceVersion);
+                IDSM( uint16_t serviceId,
+                      uint16_t instanceId,
+                      uint8_t majorVersion,
+                      uint16_t eventgroupId, 
+                      AsyncBsdSocketLib::Poller *poller,
+                      std::string nicIpAddress,
+                      std::string multicastGroup,
+                      uint16_t port_Snesors_IDSM,
+                      uint16_t port_IDSM_IDSR,
+                      uint8_t protocolVersion,
+                      uint8_t interfaceVersion
+                    );
 
                 /**************** override deconstructor  *********************/
                 ~IDSM();

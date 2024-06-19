@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCore.a CMakeFiles/Core.dir/initialization.cpp.o CMakeFiles/Core.dir/instance_specifier.cpp.o
+/usr/bin/ranlib libCore.a

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/demo_hmac.dir/samples/Demos/demo_hmac.cpp.o -o demo_hmac  ../core/libCore.a libCrypto.a /usr/lib/x86_64-linux-gnu/libcryptopp.so 

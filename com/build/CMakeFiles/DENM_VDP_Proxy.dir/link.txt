@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/DENM_VDP_Proxy.dir/samples/V2X_interfaces_demos/demo_DENM_VDP_Proxy.cpp.o -o DENM_VDP_Proxy  libaraCom.a 

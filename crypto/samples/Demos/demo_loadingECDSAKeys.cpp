@@ -109,7 +109,7 @@ int main()
     /**************************************************************
     *    using loaded crypto provider to load public key         *
     **************************************************************/
-   auto res_loadPUKey = myCryptoProvider->LoadPublicKey(*myIoInterface2);
+    auto res_loadPUKey = myCryptoProvider->LoadPublicKey(*myIoInterface2);
     if(!res_loadPUKey.HasValue())
     {
         std::cout << "--- error in loading public key---\n";

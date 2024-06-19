@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ids/event_frame/event_frame.h"
+#include "../../ids_protocol/event_frame/event_frame.h"
 
 using namespace ara::idsm::ids;
 

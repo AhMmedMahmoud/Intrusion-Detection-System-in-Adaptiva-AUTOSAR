@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/skeleton.dir/samples/demo_skeleton.cpp.o -o skeleton  libaraCom.a 

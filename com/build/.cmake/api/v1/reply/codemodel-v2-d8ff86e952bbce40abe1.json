@@ -1,0 +1,276 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "CommunicationManager",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "CAM_VDP_Proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CAM_VDP_Proxy-a5b202a0df7ed24b1f02.json",
+					"name" : "CAM_VDP_Proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "CAM_VDP_Skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CAM_VDP_Skeleton-7ba4e00a1d9892364034.json",
+					"name" : "CAM_VDP_Skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DENM_Client::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DENM_Client-eb747aafeb64ec03dae5.json",
+					"name" : "DENM_Client",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DENM_Server::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DENM_Server-64ebf3895bb52d701025.json",
+					"name" : "DENM_Server",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DENM_VDP_Proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DENM_VDP_Proxy-fdb9ed1fdd29034298c5.json",
+					"name" : "DENM_VDP_Proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DENM_VDP_Skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DENM_VDP_Skeleton-71057a75fe7a691e12bb.json",
+					"name" : "DENM_VDP_Skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TriggerInProxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TriggerInProxy-1f7a3c50c0706ec3bc76.json",
+					"name" : "TriggerInProxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TriggerInSkeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TriggerInSkeleton-9976b5a807939bb92327.json",
+					"name" : "TriggerInSkeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TriggerOutProxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TriggerOutProxy-6966280db864db581ab6.json",
+					"name" : "TriggerOutProxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TriggerOutSkeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TriggerOutSkeleton-fd37e3d33912c26f8c2b.json",
+					"name" : "TriggerOutSkeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "araCom::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-araCom-f258047584cc7e9c0f7d.json",
+					"name" : "araCom",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "client_field::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-client_field-7821ba24f3e4f9c2089c.json",
+					"name" : "client_field",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_ucmMaster_ota_proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_ucmMaster_ota_proxy-568c20f048f53ff77461.json",
+					"name" : "demo_ucmMaster_ota_proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_ucmMaster_ota_skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_ucmMaster_ota_skeleton-d4b9a524b7a98107258c.json",
+					"name" : "demo_ucmMaster_ota_skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_ucmMaster_ucm_proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_ucmMaster_ucm_proxy-b5d11eeec945fbca00e8.json",
+					"name" : "demo_ucmMaster_ucm_proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_ucmMaster_ucm_skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_ucmMaster_ucm_skeleton-8f050aacedf05f665df9.json",
+					"name" : "demo_ucmMaster_ucm_skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "eventDriven_CAM_VDP_Proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-eventDriven_CAM_VDP_Proxy-578a68c2fbbb950e9ef2.json",
+					"name" : "eventDriven_CAM_VDP_Proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "process::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-process-a723644fea87b689f241.json",
+					"name" : "process",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-proxy-73b68b62fdd6dd1c7f7e.json",
+					"name" : "proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rpcs_proxy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rpcs_proxy-073cfd9c476634c1c193.json",
+					"name" : "rpcs_proxy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rpcs_skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rpcs_skeleton-6246e43997288ac271f4.json",
+					"name" : "rpcs_skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "serialization_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-serialization_test-0540a4c007589ef7d19a.json",
+					"name" : "serialization_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "server_field::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-server_field-758af4147ac0c1917d5d.json",
+					"name" : "server_field",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "skeleton::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-skeleton-8bec2545168947957047.json",
+					"name" : "skeleton",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "someip::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-someip-459be14dfd8240154e96.json",
+					"name" : "someip",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ahmed/coding/com/build",
+		"source" : "/home/ahmed/coding/com"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

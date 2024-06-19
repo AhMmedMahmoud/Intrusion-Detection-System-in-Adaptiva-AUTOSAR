@@ -8,7 +8,7 @@ namespace ara
         {
            if(iSpecify.ToString() == "cryptopp")
            {
-                std::cout << iSpecify.ToString() << std::endl;
+                //std::cout << iSpecify.ToString() << std::endl;
                 
                 return std::make_unique<cryp::CryptoPP_CryptoProvider>();
            }

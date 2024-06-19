@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/process.dir/samples/demo_process.cpp.o -o process  libaraCom.a 
