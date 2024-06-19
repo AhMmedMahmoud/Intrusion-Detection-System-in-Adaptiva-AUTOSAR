@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/TriggerOutSkeleton.dir/samples/sm_interfaces_demos/demo_TriggerOutSkeleton.cpp.o -o TriggerOutSkeleton  libaraCom.a 

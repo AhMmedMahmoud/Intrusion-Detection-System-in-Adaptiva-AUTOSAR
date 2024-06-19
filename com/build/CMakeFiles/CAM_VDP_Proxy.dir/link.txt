@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/CAM_VDP_Proxy.dir/samples/V2X_interfaces_demos/demo_CAM_VDP_Proxy.cpp.o -o CAM_VDP_Proxy  libaraCom.a 
