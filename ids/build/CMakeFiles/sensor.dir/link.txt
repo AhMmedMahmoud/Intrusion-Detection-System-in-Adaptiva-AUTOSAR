@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/sensor.dir/samples/demo_sensor.cpp.o -o sensor  libids.a com/libaraCom.a core/libCore.a crypto/libCrypto.a -lcryptopp 

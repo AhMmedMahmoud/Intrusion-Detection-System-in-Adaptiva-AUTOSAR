@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/TriggerOutProxy.dir/samples/sm_interfaces_demos/demo_TriggerOutProxy.cpp.o -o TriggerOutProxy  libaraCom.a 

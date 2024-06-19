@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/Manager.dir/samples/demo_manifest_manager.cpp.o -o Manager  libids.a com/libaraCom.a core/libCore.a crypto/libCrypto.a -lcryptopp 

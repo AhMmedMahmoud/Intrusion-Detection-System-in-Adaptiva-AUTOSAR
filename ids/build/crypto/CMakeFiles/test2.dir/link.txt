@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/test2.dir/samples/test2.cpp.o -o test2  ../core/libCore.a libCrypto.a /usr/lib/x86_64-linux-gnu/libcryptopp.so 
