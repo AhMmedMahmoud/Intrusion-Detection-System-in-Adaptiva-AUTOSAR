@@ -67,9 +67,6 @@ namespace ara
                 {
                     throw std::runtime_error("Adding IDSM_IDSR UDP socket sender failed.");
                 }
-
-                manifest::ManifestManager manager("../Manifest/manifest.json");
-                manager.parseJSON();
                 
                 for(manifest::SecurityEventContextMapping obj : manifest::eventContextMappings)
                 {

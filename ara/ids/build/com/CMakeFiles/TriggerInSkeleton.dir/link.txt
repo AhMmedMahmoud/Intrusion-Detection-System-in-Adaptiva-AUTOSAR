@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/TriggerInSkeleton.dir/samples/sm_interfaces_demos/demo_TriggerInSkeleton.cpp.o -o TriggerInSkeleton  libaraCom.a 

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/DENM_Server.dir/samples/V2X_interfaces_demos/demo_DENM_Server.cpp.o -o DENM_Server  libaraCom.a 

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/demo_loadingECDSAKeys.dir/samples/Demos/demo_loadingECDSAKeys.cpp.o -o demo_loadingECDSAKeys  ../core/libCore.a libCrypto.a /usr/lib/x86_64-linux-gnu/libcryptopp.so 

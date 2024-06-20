@@ -71,6 +71,8 @@ add_library(
    Manifest/shared/shared_aggregationFilters.cpp
    Manifest/shared/shared_everyOneNFilters.h
    Manifest/shared/shared_everyOneNFilters.cpp
+
+   ../core/initialization.cpp
 )
 
 ################################################################################

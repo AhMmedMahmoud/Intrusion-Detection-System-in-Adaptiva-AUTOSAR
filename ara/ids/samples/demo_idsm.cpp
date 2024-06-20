@@ -3,6 +3,7 @@
 // for delay
 #include <thread>
 #include <chrono>
+#include "../../core/initialization.h"
 
 using namespace ara::idsm::someip;
 using namespace ara::com::helper;
@@ -26,6 +27,8 @@ const uint16_t cClientId = 1;
 
 int main()
 {
+    ara::core::Initialize();
+
     Poller* poller;
     poller = new Poller();
   

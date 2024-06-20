@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/Timestamp.dir/samples/internalClassesofIDSMessage/Timestamp.cpp.o -o Timestamp  libids.a com/libaraCom.a core/libCore.a crypto/libCrypto.a -lcryptopp 
