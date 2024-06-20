@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/serialization_test.dir/samples/serialization_test.cpp.o -o serialization_test  libaraCom.a 

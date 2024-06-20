@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/idsm.dir/samples/demo_idsm.cpp.o -o idsm  libids.a com/libaraCom.a core/libCore.a crypto/libCrypto.a -lcryptopp 

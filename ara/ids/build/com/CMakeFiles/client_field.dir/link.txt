@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/client_field.dir/samples/demo_field_client.cpp.o -o client_field  libaraCom.a 

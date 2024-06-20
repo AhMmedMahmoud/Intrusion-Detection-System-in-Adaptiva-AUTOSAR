@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/aes_ecb.dir/samples/CryptoPP_examples/AES_ECB_128.cpp.o -o aes_ecb  /usr/lib/x86_64-linux-gnu/libcryptopp.so 
