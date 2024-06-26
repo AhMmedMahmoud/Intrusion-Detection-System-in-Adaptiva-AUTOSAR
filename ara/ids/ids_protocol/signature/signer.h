@@ -26,18 +26,6 @@ namespace ara
                 {
                     ids::SignatureFrame s;
 
-                    /*********************************
-                    *       call Initialize          *
-                    *********************************/ 
-                    auto res_Initialize = ara::core::Initialize();
-                    if(!res_Initialize.HasValue())
-                    {
-                        std::cout << "--- error 1---\n";
-                        ara::core::ErrorCode error = res_Initialize.Error();
-                        std::cout << error.Message() << std::endl;
-                        return s;
-                    }
-
                     /****************************************
                     *       load a key storage provider     *
                     ****************************************/

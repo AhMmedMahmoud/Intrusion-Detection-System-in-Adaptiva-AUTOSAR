@@ -27,6 +27,7 @@ namespace ara
                     /*********************************
                     *       call Initialize          *
                     *********************************/ 
+                    /*
                     auto res_Initialize = ara::core::Initialize();
                     if(!res_Initialize.HasValue())
                     {
@@ -35,7 +36,8 @@ namespace ara
                         std::cout << error.Message() << std::endl;
                         return false;
                     }
-
+                    */
+                    
                     /****************************************
                     *       load a key storage provider     *
                     ****************************************/
@@ -114,7 +116,7 @@ namespace ara
                     auto _result2 = myMsgRecoveryPublicCtx->DecodeAndVerify(payload);   
                     if(_result2.HasValue())
                     {
-                        //std::cout << "--- sucess ---\n";
+                        std::cout << "--- sucess ---\n";
           
                         // get recoveryMessage
                         auto recoveryMessage = _result2.Value();
@@ -123,7 +125,7 @@ namespace ara
                     }
                     else
                     {
-                        //std::cout << "--- error 4---\n";
+                        std::cout << "--- error 4---\n";
                         ara::core::ErrorCode error = _result2.Error();
                         std::cout << error.Message() << std::endl;
                         return false;

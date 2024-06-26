@@ -3,6 +3,8 @@
 // for delay
 #include <thread>
 #include <chrono>
+#include "../../core/initialization.h"
+
 
 using namespace ara::idsm::someip;
 using namespace ara::com::helper;

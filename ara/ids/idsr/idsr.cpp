@@ -1,6 +1,7 @@
 #include "idsr.h"
 #include <iostream>
 #include <algorithm>
+#include "../ids_protocol/signature/signature.h"
 
 namespace ara
 {
@@ -48,7 +49,24 @@ namespace ara
 
             void IDSR::InvokeEventHandler(ids::IDSMessage request)
             {  
-                request.print(); 
+                if(request.getEventFrame().getProtocolHeader().getSignatureFlag())
+                {
+                    ids::SignatureState _state = ids::SignatureState::VERIFIED;
+                    //_state = request.isVerified();
+                    if(_state == ids::SignatureState::VERIFIED)
+                    {
+                        std::cout << "Received IDS Message is verified\n";
+                        request.print();
+                    }
+                    else if(_state == ids::SignatureState::NOT_VERIFIED)
+                    {
+                        std::cout << "Received IDS Message is not verified\n";
+                    }
+                }
+                else
+                {
+                   request.print();
+                }
             }
 
             /**************************** poller functions  **********************************/
@@ -72,9 +90,8 @@ namespace ara
 
                     // Create the received message from the received payload
                     ids::IDSMessage _receivedMessage{ids::IDSMessage::Deserialize(cRequestPayload)};
-                    
+
                     // call function that contain what to do with received message
-                    
                     InvokeEventHandler(std::move(_receivedMessage));
                 }
             }

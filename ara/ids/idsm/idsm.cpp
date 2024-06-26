@@ -67,6 +67,9 @@ namespace ara
                 {
                     throw std::runtime_error("Adding IDSM_IDSR UDP socket sender failed.");
                 }
+
+                manifest::ManifestManager manager("../Manifest/manifest.json");
+                manager.parseJSON();
                 
                 for(manifest::SecurityEventContextMapping obj : manifest::eventContextMappings)
                 {
@@ -470,7 +473,7 @@ namespace ara
                               )
             {
                 ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                           ids::ProtocolHeader(0,1,1),
+                                                           ids::ProtocolHeader(1,1,1),
                                                            _idsMInstanceID,
                                                            _sensorInstanceId,
                                                            _eventDefinationID,
@@ -498,7 +501,7 @@ namespace ara
                                 )
             {
                 ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                            ids::ProtocolHeader(0,0,1),
+                                            ids::ProtocolHeader(1,0,1),
                                             _idsMInstanceID,
                                             _sensorInstanceId,
                                             _eventDefinationID,
@@ -524,7 +527,7 @@ namespace ara
                                 )
             {
                 ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                           ids::ProtocolHeader(0,1,0),
+                                                           ids::ProtocolHeader(1,1,0),
                                                            _idsMInstanceID,
                                                            _sensorInstanceId,
                                                            _eventDefinationID,
@@ -547,7 +550,7 @@ namespace ara
                                 )
             {
                 ids::IDSMessage _message( ids::EventFrame( 10,  // protocolVersion
-                                                            ids::ProtocolHeader(0,0,0),
+                                                            ids::ProtocolHeader(1,0,0),
                                                             _idsMInstanceID,
                                                             _sensorInstanceId,
                                                             _eventDefinationID,
@@ -765,11 +768,11 @@ namespace ara
                     if (_dequeued)
                     {       
                         // for printing
-                        std::cout << "------------------------------------------------\n";
+                        std::cout << "---------------------- onSend -----------------------\n";
                         std::cout << ".....sent message..... \n";
                         ids::IDSMessage toSend  = ids::IDSMessage::Deserialize(_payload);
                         toSend.print();
-                        std::cout << "--------------------------------------------------\n";
+                        //std::cout << "--------------------------------------------------\n";
                         
                         std::array<uint8_t, cBufferSize> _buffer;
                         std::copy_n(

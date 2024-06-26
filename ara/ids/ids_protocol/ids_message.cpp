@@ -115,7 +115,9 @@ namespace ara
                     _state = SignatureState::SIFNATURE_NOT_SUPPORTED;
                 else
                 {
+                    std::cout << "444444\n";
                     bool _result = security::Verifier::verify(ECDSA_SHA_256_ALG_ID,Payload(true,false));
+                    std::cout << "55555\n";
                     switch(_result)
                     {
                         case 1:
@@ -171,6 +173,23 @@ namespace ara
                 }
 
                 return _result;
+            }
+
+            /**************** move constructor and move assigment operator **************/
+            IDSMessage::IDSMessage(IDSMessage&& other) noexcept :  mEventFrame{std::move(other.mEventFrame)},
+                                                                   mTimestamp{std::move(other.mTimestamp)},
+                                                                   mContextDataFrame{std::move(other.mContextDataFrame)},
+                                                                   mSignatureFrame{std::move(other.mSignatureFrame)}                   
+            {}
+
+            IDSMessage& IDSMessage::operator=(IDSMessage&& other)
+            {
+                mEventFrame = std::move(other.mEventFrame);
+                mTimestamp = std::move(other.mTimestamp);
+                mContextDataFrame = std::move(other.mContextDataFrame);
+                mSignatureFrame = std::move(other.mSignatureFrame);
+
+                return *this;
             }
 
 

@@ -51,11 +51,9 @@ namespace ara
                 bool isValidMessage(const ara::com::someip::rpc::SomeIpRpcMessage &request);                
                 void InvokeEventHandler(const ara::com::someip::rpc::SomeIpRpcMessage &request);
                 void logic(const ara::com::someip::rpc::SomeIpRpcMessage &request);
-                
                 bool stateMachineFilterExists(int _index);
                 bool oneEveryNFilterExists(int _index);
                 bool isCurrentMachineStateOneOfBlockingState(int _index, std::string _currentStateMachine);
-                
                 manifest::SecurityEventReportingModeEnum getReportingMode(int _index);
                 int getN(int _index);
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../ids_protocol/ids_message.h"
+#include "../../core/initialization.h"
 
 using namespace ara::idsm::ids;
 
@@ -9,11 +10,14 @@ using namespace ara::idsm::ids;
 #define EVENTFRAME_TIMESTAMP_CONTEXTDATAFRAME 3
 
 #define EVENTFRAME_SIGNATURE 4
+#define EVENTFRAME_TIMESTAMP_CONTEXTDATAFRAME_SIGNATURE 5
 
-#define EXAMPLE EVENTFRAME_SIGNATURE
+#define EXAMPLE EVENTFRAME_TIMESTAMP_CONTEXTDATAFRAME_SIGNATURE
 
 int main()
 {
+    ara::core::Initialize();
+
     /******** protototypes ***********
     EventFrame( uint8_t protocolVersion,
                 ProtocolHeader protocolHeader,
@@ -144,6 +148,30 @@ int main()
     m2_rec.print();
 #endif
 
+#if EXAMPLE == EVENTFRAME_TIMESTAMP_CONTEXTDATAFRAME_SIGNATURE  
+    IDSMessage m1(
+                    EventFrame (10, ProtocolHeader(1,1,1), 4, 5, 6, 7 ),
+                    Timestamp (TimeStampSource::AUTOSAR, 0x2af0abcd, 0x12345678),
+                    ContextDataFrame (ContextDataSize::SHORT,data.size(),data)
+                 );
+    
+    std::cout << "-------------print message-------------\n";    
+    m1.print();
+
+    std::cout << "--check if message is verified or not--\n";
+    std::cout << static_cast<int>(m1.isVerified()) << "\n";
+
+    std::cout << "-------------serialization-------------\n";
+    std::vector<uint8_t> message1_vec = m1.Payload();
+    for(uint8_t byte : message1_vec)
+    {
+        std::cout << static_cast<int>(byte) << "\n";
+    } 
+    
+    std::cout << "-----------deserialization------------\n";    
+    IDSMessage m1_rec =  IDSMessage::Deserialize(message1_vec);
+    m1_rec.print();
+#endif
 
     return 0;
 }

@@ -47,6 +47,10 @@ namespace ara
                 std::vector<uint8_t> Payload(bool considerSignature = true,
                                              bool considerSignatureLenght = true);
                 static IDSMessage Deserialize(const std::vector<uint8_t> &payload);
+
+                /**************** move constructor and move assigment operator **************/
+                IDSMessage(IDSMessage&& other) noexcept;
+                IDSMessage& operator=(IDSMessage&& other);
             };
         }
     }
